@@ -23,7 +23,7 @@ void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
 }
 
 //function for opening comunication channel to comand
-double comunication_channel_comandz ( char* myfifo_comand, int fd2) {
+double comunication_channel_comandz ( char* myfifo_comandz, int fd2) {
     char velz_str[20]="";
     char format_string[20]="%f";
     double velz=0.0;
@@ -48,7 +48,7 @@ int main() {
      while(1) {
         fd1=open(myfifo_world,O_WRONLY);
         fd2=open(myfifo_comand,O_RDONLY);
-        velz=comunication_channel_comand(myfifo_comandz, fd2);
+        velz=comunication_channel_comandz(myfifo_comandz, fd2);
         posz=estimate_position(velx, delta_time);
         //TODO check if we are 0 or 100, we cannot accept, respectly, negative or positive velx
         comunication_channel_world(myfifo_world, posz, fd1);
