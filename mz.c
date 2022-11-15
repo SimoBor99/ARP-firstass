@@ -7,7 +7,7 @@
 #include <sys/wait.h>
 #include <string.h>
 
-//function for calculating the estimate position
+//function for calculating the estimate position; delta_time is 30Hz
 double estimate_position ( int velz, double delta_time) {
     return velz*delta_time;
 }
