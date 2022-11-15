@@ -31,42 +31,42 @@ int main(int argc, char const *argv[])
 
                 // Vx++ button pressed
                 if(check_button_pressed(vx_decr_btn, &event)) {
-                    mvprintw(LINES - 1, 1, "Horizontal Speed Decreased");
+                    /*mvprintw(LINES - 1, 1, "Horizontal Speed Decreased");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
 
                 // Vx-- button pressed
                 else if(check_button_pressed(vx_incr_btn, &event)) {
-                    mvprintw(LINES - 1, 1, "Horizontal Speed Increased");
+                    /*mvprintw(LINES - 1, 1, "Horizontal Speed Increased");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
 
                 // Vx stop button pressed
                 else if(check_button_pressed(vx_stp_button, &event)) {
-                    mvprintw(LINES - 1, 1, "Horizontal Motor Stopped");
+                    /*mvprintw(LINES - 1, 1, "Horizontal Motor Stopped");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
 
                 // Vz++ button pressed
                 else if(check_button_pressed(vz_decr_btn, &event)) {
-                    mvprintw(LINES - 1, 1, "Vertical Speed Decreased");
+                    /*mvprintw(LINES - 1, 1, "Vertical Speed Decreased");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
 
                 // Vz-- button pressed
@@ -81,12 +81,12 @@ int main(int argc, char const *argv[])
 
                 // Vz stop button pressed
                 else if(check_button_pressed(vz_stp_button, &event)) {
-                    mvprintw(LINES - 1, 1, "Vertical Motor Stopped");
+                    /*mvprintw(LINES - 1, 1, "Vertical Motor Stopped");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
             }
         }
