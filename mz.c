@@ -49,7 +49,7 @@ int main() {
         fd1=open(myfifo_world,O_WRONLY);
         fd2=open(myfifo_comand,O_RDONLY);
         velz=comunication_channel_comandz(myfifo_comandz, fd2);
-        posz=estimate_position(velx, delta_time);
+        posz+=estimate_position(velx, delta_time);
         //TODO check if we are 0 or 100, we cannot accept, respectly, negative or positive velx
         comunication_channel_world(myfifo_world, posz, fd1);
         close(fd1);
