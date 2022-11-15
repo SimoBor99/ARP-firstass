@@ -34,22 +34,22 @@ int main(int argc, char const *argv[])
 
                 // STOP button pressed
                 if(check_button_pressed(stp_button, &event)) {
-                    mvprintw(LINES - 1, 1, "STP button pressed");
+                    /*mvprintw(LINES - 1, 1, "STP button pressed");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
 
                 // RESET button pressed
                 else if(check_button_pressed(rst_button, &event)) {
-                    mvprintw(LINES - 1, 1, "RST button pressed");
+                    /*mvprintw(LINES - 1, 1, "RST button pressed");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }
+                    }*/
                 }
             }
         }
