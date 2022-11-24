@@ -25,13 +25,12 @@ void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
 //function for opening comunication channel to comand
 double comunication_channel_comandx ( char* myfifo_comandx, int fd2) {
     char velx_str[20]="";
-    char format_string[20]="%f";
     double velx=0.0;
     mkfifo(myfifo_comandx, 0666);
     if (!read(fd2, velx_str, strlen(velx_str)+1))
         perror("Something wrong in reading");
     else 
-        sscanf(velx_str, format_string, &velx);
+        sprintf(velx_str, "%f", &velx);
     return velx;
 }
 
