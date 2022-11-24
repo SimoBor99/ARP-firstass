@@ -12,7 +12,7 @@ double estimate_position ( int velx, double delta_time) {
     return velx*delta_time;
 }
 
-//function for opening comunication channel to wolrd
+//function for opening comunication channel to world
 void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
     char px_str[20]="";
     //convert double to string
