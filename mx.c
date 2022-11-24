@@ -50,7 +50,8 @@ int main() {
         fd2=open(myfifo_comand,O_RDONLY);
         velx=comunication_channel_comandx(myfifo_comandx, fd2);
         posx+=estimate_position(velx, delta_time);
-        //TODO check if we are 0 or 40, we cannot accept, respectly, negative or positive velx
+        while ((posx==40 && velx>0) || (posx==0 && velx<0))
+            velx=comunication_channel_comandx(myfifo_comandx, fd2);
         comunication_channel_world(myfifo_world, posx, fd1);
         close(fd1);
         close(fd2);
