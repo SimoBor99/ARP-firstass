@@ -50,7 +50,7 @@ int main() {
         fd2=open(myfifo_comand,O_RDONLY);
         velx=comunication_channel_comandx(myfifo_comandx, fd2);
         posx+=estimate_position(velx, delta_time);
-        while ((posx==40 && velx>0) || (posx==0 && velx<0))
+        while (((int) posx==40 && velx>0) || ((int) posx==0 && velx<0))
             velx=comunication_channel_comandx(myfifo_comandx, fd2);
         comunication_channel_world(myfifo_world, posx, fd1);
         close(fd1);
