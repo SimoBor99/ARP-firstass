@@ -43,7 +43,7 @@ int main() {
      char input[20]="";
      double posz=0.0;
      double velz=0.0;
-     double delta_time=0.3;
+     double delta_time=pow(30, -1);
      int fd1, fd2;
      while(1) {
         fd1=open(myfifo_world,O_WRONLY);
