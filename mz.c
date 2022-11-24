@@ -12,7 +12,7 @@ double estimate_position ( int velz, double delta_time) {
     return velz*delta_time;
 }
 
-//function for opening comunication channel to wolrd
+//function for opening comunication channel to world
 void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
     char pz_str[20]="";
     //convert double to string
@@ -49,7 +49,7 @@ int main() {
         fd1=open(myfifo_world,O_WRONLY);
         fd2=open(myfifo_comand,O_RDONLY);
         velz=comunication_channel_comandz(myfifo_comandz, fd2);
-        posz+=estimate_position(velx, delta_time);
+        posz+=(1/4)*estimate_position(velx, delta_time);
         while ((posz==40 && velz>0) || (posz==0 && velz<0))
             velz=comunication_channel_comandz(myfifo_comandz, fd2);
         comunication_channel_world(myfifo_world, posz, fd1);
