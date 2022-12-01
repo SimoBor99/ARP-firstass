@@ -99,17 +99,37 @@ int kill_processes( int pid, int status) {
 }
 
 int main() {
+
+  //BLOCCO DI CODICE TEMPORANEO
+  
+  char *file_name[][100]={{"log_command.txt"}, {"log_inspection.txt"}, {"log_mx.txt"}, {"log_mz.txt"}, {"log_world.txt"}};
+  for (int i=0; i<5; i++)
+  {
+      while(1) {
+      	fp[i]=fopen(*file_name[i], "w+");
+        if(fp[i] == NULL) {
+        	printf("CREA PADRE?");
+        }
+        else {
+        	printf("PADRE C'é");
+                fclose(fp[i]);
+                break;
+        }
+     }
+     printf("%d",i);
+  }
+  
+  //FINE BLOCCO DI CODICE TEMPORANEO
+
   //list of all processes
   char *arg_lists[][100]= {{"/usr/bin/konsole", "-e", "./command", NULL}, {"/usr/bin/konsole", "-e", "./inspection", NULL}, 
-  {"./mx", NULL }, {"./mz", NULL }, {"./world", NULL }};
+  {"/usr/bin/konsole", "-e", "./mx", NULL }, {"/usr/bin/konsole", "-e", "./mz", NULL }, {"/usr/bin/konsole", "-e", "./world", NULL }};
   //list of processes path
-  char *process_path[][100]={{"/usr/bin/konsole"}, {"/usr/bin/konsole"}, {NULL}, {NULL}, {NULL}};
+  char *process_path[][100]={{"/usr/bin/konsole"}, {"/usr/bin/konsole"}, {"/usr/bin/konsole"}, {"/usr/bin/konsole"}, {"/usr/bin/konsole"}};
   //array that collects all pid
   int all_pid[5];
   for ( int i=0; i<5; i++)
     all_pid[i]=spawn(*process_path[i], arg_lists[i]);
-  //set file names
-  char *file_name[][100]={"log_command.txt", "log_inspection.txt", "log_mx.txt", "log_mz.txt", "log_world.txt"};
   for ( int i=0; i<5; i++)
     send_pid_file(*process_path[i], all_pid[0], *file_name[i]);
   char *time_filemod[5]={0};
