@@ -1,8 +1,20 @@
 
 #include "./../include/inspection_utilities.h"
 
+void write_log(char * log_text, char * fn)
+{
+	FILE *fp_log;
+	fp_log = fopen(fn,"a");  
+	fputs(log_text, fp_log);
+	fputs("\n", fp_log);
+	//perror("Error in something!"); 
+	fclose(fp_log);
+}
+
 int main(int argc, char const *argv[])
 {
+    char * filename = "log_inspection.txt";
+    char * logtxt = "";
     // Utility variable to avoid trigger resize event on launch
     int first_resize = TRUE;
 
