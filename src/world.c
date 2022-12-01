@@ -9,7 +9,17 @@
 
 const double rnderr = 0.05;
 char *eptr;
-double resultx,resultz;
+double resultx,resultz,old_resx,old_resz;
+
+void write_log(char * log_text, char * fn)
+{
+	FILE *fp_log;
+	fp_log = fopen(fn,"a");  
+	fputs(log_text, fp_log);
+	fputs("\n", fp_log);
+	//perror("Error in something!"); 
+	fclose(fp_log);
+}
 
 double add_random_error(double r)
 {
@@ -19,6 +29,8 @@ double add_random_error(double r)
 
 int main()
 {
+	char * filename = "log_world.txt";
+	char * logtxt = "";
 	fd_set readfds;
 	int retval, nRead;
 	int fdx,fdz;
@@ -37,6 +49,8 @@ int main()
 	{
 		fdx = open(myfifox, O_RDONLY);
 		fdz = open(myfifoz, O_RDONLY);
+		printf("FDX: %d", fdx);
+        	printf("FDZ: %d", fdz);
 		FD_ZERO(&readfds);
         	FD_SET(fdx, &readfds);
         	FD_SET(fdz, &readfds);
@@ -58,7 +72,6 @@ int main()
 		}
 		
 		else // there is incoming input
-		printf("EHILAAAA");
         	{
         		// check where is it coming from
         		if (FD_ISSET(fdx, &readfds))
@@ -71,8 +84,13 @@ int main()
         	        	}
         	        	else
         	        	{
+        	        		//perror(messageP1);
+        	        		old_resx = resultx;
         	        		resultx = strtod(messageP1, &eptr);
-        	        		resultx /= 2;
+        	        		if (old_resx != resultx) {
+        					logtxt="Current horizothal position just changed!";
+        					write_log(logtxt,filename);
+        				}
         	        		char tmpx[20]="";
     					sprintf(tmpx, "%f", resultx);
         	        		printf("Provider X: %s\n", tmpx);
@@ -90,11 +108,16 @@ int main()
             	    		}
             	    		else
             	    		{
+            	    			//perror(messageP2);
+            	    			old_resz = resultz;
             	        		resultz = strtod(messageP2, &eptr);
-        	        		resultz /= 2;
+            	        		if (old_resx != resultx) {
+        					logtxt="Current vertical position just changed!";
+        					write_log(logtxt,filename);
+        				}
         	        		char tmpz[20]="";
     					sprintf(tmpz, "%f", resultz);
-        	        		printf("Provider X: %s\n", tmpz);
+        	        		printf("Provider Z: %s\n", tmpz);
             	        		fflush(stdout);
             	    		}
             		}
