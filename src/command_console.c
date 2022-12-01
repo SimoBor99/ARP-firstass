@@ -9,24 +9,27 @@
 #include <stdbool.h>
 #include <time.h>
 
-void write_log(char * log_text)
+void write_log(char * log_text, char * fn)
 {
 	FILE *fp_log;
-	fp_log = open("command_log.txt",'a');
+	fp_log = fopen(fn,"a");  
 	fputs(log_text, fp_log);
+	fputs("\n", fp_log);
+	//perror("Error in something!"); 
 	fclose(fp_log);
 }
 
 int main(int argc, char const *argv[])
 {
+    char * filename = "log_command.txt";
     char * logtxt = "";
     int fdx,fdz;
     char * myfifox = "/tmp/myfifo_comandx";
     char * myfifoz = "/tmp/myfifo_comandz";
     mkfifo(myfifox,0666);
     mkfifo(myfifoz,0666);
-    int vx = 0;
-    int vz = 0;
+    double vx = 0.0;
+    double vz = 0.0;
     char mess[80];
     // Utility variable to avoid trigger resize event on launch
     int first_resize = TRUE;
@@ -37,8 +40,8 @@ int main(int argc, char const *argv[])
     // Infinite loop
     while(TRUE)
 	{	
-	fdx = open(myfifox,O_WRONLY);
-    	fdz = open(myfifoz,O_WRONLY);
+	//fdx = open(myfifox,O_WRONLY);
+    	//fdz = open(myfifoz,O_WRONLY);
         // Get mouse/resize commands in non-blocking mode...
         int cmd = getch();
 
@@ -61,11 +64,15 @@ int main(int argc, char const *argv[])
                 if(check_button_pressed(vx_decr_btn, &event)) {
                     vx--;
                     mvprintw(LINES - 1, 1, "Horizontal Speed Decreased");
-                    sprintf(mess,"%d",vx);
-                    write(fdx,mess,80);
+                    sprintf(mess,"%f",vx);
+                    fdx = open(myfifox,O_WRONLY);
+                    if (write(fdx,mess,80) == -1) {
+                    	perror("Error in writing!");
+                    }
                     logtxt = "Decrease horizonthal speed";
-                    write_log(logtxt);
+                    write_log(logtxt,filename);
                     refresh();
+                    close(fdx);
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
@@ -75,12 +82,16 @@ int main(int argc, char const *argv[])
                 // Vx++ button pressed
                 else if(check_button_pressed(vx_incr_btn, &event)) {
                     vx++;
-                    sprintf(mess,"%d",vx);
-                    write(fdx,mess,80);
+                    sprintf(mess,"%f",vx);
+                    fdx = open(myfifox,O_WRONLY);
+                    if (write(fdx,mess,80) == -1) {
+                    	perror("Error in writing!");
+                    }
                     mvprintw(LINES - 1, 1, "Horizontal Speed Increased");
                     logtxt = "Increase horizonthal speed";
-                    write_log(logtxt);
+                    write_log(logtxt,filename);
                     refresh();
+                    close(fdx);
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
@@ -91,11 +102,15 @@ int main(int argc, char const *argv[])
                 else if(check_button_pressed(vx_stp_button, &event)) {
                     vx = 0;
                     mvprintw(LINES - 1, 1, "Horizontal Motor Stopped");
-                    sprintf(mess,"%d",vx);
-                    write(fdx,mess,80);
-                    logtxt = "Stop horizonthal speed";
-                    write_log(logtxt);
+                    sprintf(mess,"%f",vx);
+                    fdx = open(myfifox,O_WRONLY);
+                    if (write(fdx,mess,80) == -1) {
+                    	perror("Error in writing!");
+                    }
+                    logtxt = "Stop horizonthal speed";                 
+                    write_log(logtxt,filename);
                     refresh();
+                    close(fdx);
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
@@ -106,11 +121,15 @@ int main(int argc, char const *argv[])
                 else if(check_button_pressed(vz_decr_btn, &event)) {
                     vz--;
                     mvprintw(LINES - 1, 1, "Vertical Speed Decreased");
-                    sprintf(mess,"%d",vz);
-                    write(fdz,mess,80);
+                    sprintf(mess,"%f",vz);
+                    fdz = open(myfifoz,O_WRONLY);
+                    if (write(fdz,mess,80) == -1) {
+                    	perror("Error in writing!");
+                    }
                     logtxt = "Decrease vertical speed";
-                    write_log(logtxt);
+                    write_log(logtxt,filename);
                     refresh();
+                    close(fdz);
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
@@ -121,11 +140,15 @@ int main(int argc, char const *argv[])
                 else if(check_button_pressed(vz_incr_btn, &event)) {
                     vz++;
                     mvprintw(LINES - 1, 1, "Vertical Speed Increased");
-                    sprintf(mess,"%d",vz);
-                    write(fdz,mess,80);
+                    sprintf(mess,"%f",vz);
+                    fdz = open(myfifoz,O_WRONLY);
+                    if (write(fdz,mess,80) == -1) {
+                    	perror("Error in writing!");
+                    }
                     logtxt = "Increase vertical speed";
-                    write_log(logtxt);
+                    write_log(logtxt,filename);
                     refresh();
+                    close(fdz);
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
@@ -136,11 +159,15 @@ int main(int argc, char const *argv[])
                 else if(check_button_pressed(vz_stp_button, &event)) {
                     vz = 0;
                     mvprintw(LINES - 1, 1, "Vertical Motor Stopped");
-                    sprintf(mess,"%d",vz);
-                    write(fdz,mess,80);
+                    sprintf(mess,"%f",vz);
+                    fdz = open(myfifoz,O_WRONLY);
+                    if (write(fdz,mess,80) == -1) {
+                    	perror("Error in writing!");
+                    }
                     logtxt = "Stop vertical speed";
-                    write_log(logtxt);
+                    write_log(logtxt,filename);
                     refresh();
+                    close(fdz);
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
@@ -148,8 +175,8 @@ int main(int argc, char const *argv[])
                 }
             }
         }
-	close(fdx);
-	close(fdz);
+	//close(fdx);
+	//close(fdz);
         refresh();
 	}
 
