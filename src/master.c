@@ -15,8 +15,10 @@ char* readlogfile(char *filepath) {
     struct stat filestat;
     char * filemod;
     if (filemod==NULL) 
-      return -1;
-    char format_string_date[100]="%s, %s, %s, %s, %s";
+      perror("Invalid pointer");
+    char timemod[200];
+    char time[100];
+    char format_string_date[100]="%s %s  %s %s %s";
     char day[80];
     char month[80];
     char num_day[80];
@@ -24,52 +26,44 @@ char* readlogfile(char *filepath) {
     if (stat(filepath,&filestat)==-1)
         perror("Something went wrong");
     filemod=ctime(&filestat.st_mtime);
-    int i = 0;
-    char * time = strtok(filemod, " ");
-    while (i < 3) {
-    	time = strtok(NULL, " ");
-    	i++;
-    }
-    //time of last file modify
-    char * try = time;
-    return try;
+    sscanf(filemod, format_string_date, day, month, num_day, time, year);
+    return time;
 }
-//check if proces is idle more than 60 seconds
-int timecheck( char *filetime, char * minutes, char * seconds) {
+
+int timecheck( char *filetime) {
   time_t rawtime;
   struct tm * timeinfo;
-  char format_string_time[100]="%d, %d, %d";
+  char y[100];
+  char format_string_time[100]="%d:%d:%d";
   if ( timeinfo==NULL || format_string_time==NULL)
     perror("Invalid pointer");
   char actual_time[100];
-  char * pnt = &actual_time[0];
-  char * at;
+  int actual_hour=0;
   int actual_minutes=0;
   int actual_seconds=0;
   int file_minutes=0;
   int file_seconds=0;
+  int file_hour=0;
+  char t[20], r[20], f[20];
   time(&rawtime);
   timeinfo=localtime( &rawtime);
   //actual time
-  strftime(actual_time, 100, "%H %M %S", timeinfo);
+  strftime(actual_time, 100, "%H:%M:%S", timeinfo);
   //convertion of actual and last modify file time
-  char * h = strtok(pnt," ");
-  char * m = strtok(NULL," ");
-  char * s = strtok(NULL," ");
-  actual_minutes = atoi(m);
-  actual_seconds = atoi(s);
-  file_minutes = atoi(minutes);
-  file_seconds = atoi(seconds);
-  //check if 1 minute has gone
+  sscanf(actual_time, format_string_time, &actual_hour, &actual_minutes, &actual_seconds);
+  sscanf(filetime, format_string_time, &file_hour, &file_minutes, &file_seconds);
+  sprintf(t, "%d", file_hour);
+  sprintf(r, "%d", file_minutes);
+  sprintf(f, "%d", file_seconds);
   if (actual_minutes != file_minutes) {
   	if (actual_minutes == 0) {
   		actual_minutes = 60;
   	}
-  	if (abs(actual_minutes-file_minutes) > 1) {
+  	if (abs(actual_minutes-file_minutes)>1) {
   		return 1;
   	}
   	else {
-  		if (actual_seconds - file_seconds >= 0) {
+  		if ((actual_seconds-file_seconds)>= 0) {
   			return 1;
   		}
   		else {
@@ -82,26 +76,14 @@ int timecheck( char *filetime, char * minutes, char * seconds) {
   }
 }
 
-// NUOVE FUNZIONI PER ESTRARRE MINUTI E ORE
-
-char* ext_min(char* times) {
-	int i = 0;
-	char * min = strtok(times, ":");
-	while (i < 1) {
-		min = strtok(NULL, ":");
-    		i++;
-	}
-	return min;
-}
-
-char* ext_sec(char* times) {
-	int i = 0;
-	char * sec = strtok(times, ":");
-	while (i < 2) {
-		sec = strtok(NULL, ":");
-    		i++;
-	}
-	return sec;
+void write_log(char * log_text, char * fn)
+{
+	FILE *fp_log;
+	fp_log = fopen(fn,"a");  
+	fputs(log_text, fp_log);
+	fputs("\n", fp_log);
+	//perror("Error in something!"); 
+	fclose(fp_log);
 }
 
 // FINE NUOVE FUNZIONI
@@ -142,8 +124,8 @@ int main() {
 
   //BLOCCO DI CODICE TEMPORANEO
   
-  char *file_name[][100]={{"log_command.txt"}, {"log_inspection.txt"}, {"log_mx.txt"}, {"log_mz.txt"}, {"log_world.txt"}};
-  for (int i=0; i<5; i++)
+  char *file_name[][100]={{"log_command.txt"}, {"log_inspection.txt"}, {"log_mx.txt"}, {"log_mz.txt"}, {"log_world.txt"}, {"controll.txt"}};
+  for (int i=0; i<6; i++)
   {
       while(1) {
       	fp[i]=fopen(*file_name[i], "w+");
@@ -187,14 +169,9 @@ int main() {
         perror("Error in read files");
     for ( int i=0; i<5; i++) {
       time_filemod[i]=readlogfile(*file_name[i]);
-      strcpy(tmp,time_filemod[i]);
-      //printf("%s",tmp);
-      //printf("\n");
-      min[i] = ext_min(tmp);
-      sec[i] = ext_sec(time_filemod[i]);
       }
     //check if all processes are idle more than 60 seconds
-    if (timecheck(time_filemod[0],min[0],sec[0])==1 && timecheck(time_filemod[1],min[1],sec[1])==1 && timecheck(time_filemod[2],min[2],sec[2])==1 && timecheck(time_filemod[3],min[3],sec[3])==1 && timecheck(time_filemod[4],min[4],sec[4])==1) {
+    if (timecheck(time_filemod[0])==1 && timecheck(time_filemod[1])==1 && timecheck(time_filemod[2])==1 && timecheck(time_filemod[3])==1 && timecheck(time_filemod[4])==1) {
       //kill all child processes
       for(int i=0; i<5; i++) {
         sleep(0.5);
