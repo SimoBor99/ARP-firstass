@@ -8,6 +8,7 @@
 #include <math.h>
 #include <signal.h>
 #include <string.h>	
+#include <fcntl.h> 
 
 FILE *fp[5];
 //function that read the log file of our porcesses
@@ -205,14 +206,16 @@ int main() {
      }
      //printf("%d",i);
   }
-  
+  char* myfifo_insp="/tmp/myfifo_insp";
+  mkfifo(myfifo_insp, 0666);
   //FINE BLOCCO DI CODICE TEMPORANEO
-  
+  int fd;
   //INIZIALIZZAZIONI NUOVE
   char * sec[5];
   char * min[5];
   //FINE INIZIALIZZAZIONI NUOVE
-  
+  char write_pidmx[100];
+  char write_pidmz[100];
   //list of all processes
   char *arg_lists[][100]= {{"/usr/bin/konsole", "-e", "./command", *file_name[0], NULL}, {"/usr/bin/konsole", "-e", "./inspection", *file_name[1], NULL}, 
   {"/usr/bin/konsole", "-e", "./mx", *file_name[2], NULL }, {"/usr/bin/konsole", "-e", "./mz", *file_name[3], NULL }, {"/usr/bin/konsole", "-e", "./world", *file_name[4], NULL }};
@@ -227,6 +230,19 @@ int main() {
   if ( time_filemod==NULL)
   	perror("ssss");
   int status;
+  sprintf(write_pidmx, "%d", all_pid[2]);
+  sprintf(write_pidmz, "%d", all_pid[3]);
+  write_log(write_pidmx, "inspection_log.txt");
+  write_log(write_pidmz, "inspection_log.txt");
+  strcat(write_pidmx, "-");
+  strcat(write_pidmx, write_pidmz);
+  fd=open(myfifo_insp, O_WRONLY);
+  if (fd==0)
+    perror("invalid pipe");
+  if (write(fd, write_pidmx, 100)==-1)
+    perror("Something went wrong");
+  write_log(write_pidmx, "inspection_log.txt");
+  close(fd);
   while (1) {
     //usleep(30000);
     for (int i=0; i<5; i++)
@@ -271,4 +287,6 @@ int main() {
   }
   printf ("Main program exiting with status %d\n", status);
   return 0;
-}
+} 
+
+
