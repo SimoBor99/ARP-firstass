@@ -22,7 +22,20 @@ void write_log(char * log_text, char * fn)
 }
 
 int main(int argc, char const *argv[])
-{
+{   char *myfifo_insp="/tmp/myfifo_insp";
+    char l[100];
+    int fd;
+    char format[100]="%s-%s";
+    char *t;
+    char *o;
+    fd=open(myfifo_insp, O_RDONLY);
+    if (fd==0)
+     perror("Something wrong");
+    if (read(fd, l, 100)==-1)
+        perror("Error in read");
+    sscanf(l, format, t, o);
+     write_log(t, "inspection_log.txt");
+      write_log(o, "inspection_log.txt");
     resultx = 0;
     resultz = 0;
     old_resx = 0;
@@ -92,6 +105,9 @@ int main(int argc, char const *argv[])
         				logtxt="Current horizothal position just changed!";
         				write_log(logtxt,filename);
         			}
+        			else {
+        				write_log(messageP1,filename);
+        			}
         	       		char tmpx[20]="";
     				sprintf(tmpx, "%f", resultx);
         	       		//printf("Provider X: %s\n", tmpx);
@@ -115,6 +131,9 @@ int main(int argc, char const *argv[])
             	        	if (old_resx != resultx) {
         				logtxt="Current vertical position just changed!";
         				write_log(logtxt,filename);
+        			}
+        			else {
+        				write_log(messageP2,filename);
         			}
         	        	char tmpz[20]="";
     				sprintf(tmpz, "%f", resultz);
@@ -151,6 +170,8 @@ int main(int argc, char const *argv[])
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }*/
+                    /*if (kill()==-1)
+                        perror("Something wrong in stop");*/
                 }
 
                 // RESET button pressed
@@ -161,6 +182,8 @@ int main(int argc, char const *argv[])
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }*/
+                    /*if (kill()==-1)
+                        perror("Something wrong in stop");*/
                 }
             }
         }
@@ -173,6 +196,6 @@ int main(int argc, char const *argv[])
     // Terminate
     endwin();
     close(fdx);
-    close(fdz);
+        close(fdz);
     return 0;
 }
