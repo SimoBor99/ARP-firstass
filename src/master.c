@@ -236,6 +236,7 @@ int main() {
   write_log(write_pidmz, "inspection_log.txt");
   strcat(write_pidmx, "-");
   strcat(write_pidmx, write_pidmz);
+  strcat(write_pidmx, "-");
   fd=open(myfifo_insp, O_WRONLY);
   if (fd==0)
     perror("invalid pipe");
@@ -288,5 +289,3 @@ int main() {
   printf ("Main program exiting with status %d\n", status);
   return 0;
 } 
-
-
