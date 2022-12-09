@@ -26,16 +26,17 @@ int main(int argc, char const *argv[])
     char l[100];
     int fd;
     char format[100]="%s-%s";
-    char *t;
-    char *o;
+    char * t;
+    char * o;
     fd=open(myfifo_insp, O_RDONLY);
     if (fd==0)
      perror("Something wrong");
     if (read(fd, l, 100)==-1)
         perror("Error in read");
-    sscanf(l, format, t, o);
-     write_log(t, "inspection_log.txt");
-      write_log(o, "inspection_log.txt");
+    t = strtok(l, "-");
+    o = strtok(NULL, "-");
+    write_log(t, "inspection_log.txt");
+    write_log(o, "inspection_log.txt");
     resultx = 0;
     resultz = 0;
     old_resx = 0;
