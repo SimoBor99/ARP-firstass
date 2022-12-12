@@ -26,18 +26,17 @@ void write_log(char * log_text, const char * fn)
 }
 
 //function for calculating the estimate position; delta_time is 30Hz
-double estimate_position ( int velz, double delta_time) {
+double estimate_position ( double velz, double delta_time) {
     return velz*delta_time;
 }
 //signal handler for stopping; mz crashes when we are inside the stop_handlerz
 void stop_handlerz (int signum) {
     signal(SIGUSR1, stop_handlerz);
-    write_log("Signal called", "p.txt");
     velz=0.0;
 }
 
 //function for opening comunication channel to world
-void comunication_channel_world ( char* myfifo_world, double posz, int fd1) {
+void comunication_channel_world ( double posz, int fd1) {
     char pz_str[20]="";
     //convert double to string
     sprintf( pz_str, "%f", posz);
@@ -47,7 +46,7 @@ void comunication_channel_world ( char* myfifo_world, double posz, int fd1) {
 }
 
 //function for opening comunication channel to comand
-double comunication_channel_comandz (double velz, char* myfifo_comandz, int fd2) {
+double comunication_channel_comandz (int fd2) {
     fd_set readfds;
     int retval;
     const int TIMEOUT = 1; // seconds
@@ -79,7 +78,7 @@ double comunication_channel_comandz (double velz, char* myfifo_comandz, int fd2)
         		perror("Something wrong in reading");
         		}	
     		else {
-    			perror("READ OK");
+    			//perror("READ OK");
         		velz = strtod(velz_str, &eptr);
         	}
         }
@@ -94,11 +93,8 @@ int main(int argc, char const *argv[]) {
      const char * filename = argv[1];
      char * logtxt = "";
     //open comunication channel to world process
-     char * myfifo_world = "/tmp/myfifo_worldz";
-     if (mkfifo(myfifo_world, 0666) != 0)
-      perror("Cannot create fifo_world. Already existing?");
-     //open comunication channel to comand process
-     char * myfifo_comandz = "/tmp/myfifo_comandz";
+     const char * myfifo_world = argv[2];
+     const char * myfifo_comandz = argv[3];
      char input[20]="";
      double delta_time1=pow(30, -1);
      double delta_time2 = 1;
@@ -123,12 +119,12 @@ int main(int argc, char const *argv[]) {
     write_log(s, "c.txt");
      while(1) {
         sleep(1);
-        velz=comunication_channel_comandz(velz, myfifo_comandz, fd2);
+        velz=comunication_channel_comandz(fd2);
         old_pos = posz;
         if (signal(SIGUSR1, stop_handlerz)==SIG_ERR)
             perror("\ncan't catch the SIGUSR1");
         if (((int) posz==40 && velz>0) || ((int) posz==0 && velz<0))
-            velz=comunication_channel_comandz(velz, myfifo_comandz, fd2);
+            velz=comunication_channel_comandz(fd2);
         increment=estimate_position(velz, delta_time2);
         increment/=4;
         posz+=increment;
@@ -136,12 +132,10 @@ int main(int argc, char const *argv[]) {
         	logtxt="Current vertical position just changed!";
         	write_log(logtxt,filename);
         }
-        comunication_channel_world(myfifo_world, posz, fd1);
+        comunication_channel_world(posz, fd1);
     }
-    close(fd1);
-    //we have to check unlink later
-    //unlink(myfifo_world);
     close(fd2);
-    //unlink(myfifo_comandz);
+    close(fd1);
     return 0;
 }
+
