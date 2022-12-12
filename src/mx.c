@@ -25,7 +25,6 @@ void write_log(char * log_text, const char * fn)
 //signal handler for stopping; mx crashes when we are inside the stop_handlerx
 void stop_handlerx (int signum) {
     signal(SIGUSR1, stop_handlerx);
-    write_log("Signal called", "p.txt");
     velx=0.0;
 }
 
@@ -35,7 +34,7 @@ double estimate_position ( int velx, double delta_time) {
 }
 
 //function for opening comunication channel to world
-void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
+void comunication_channel_world (double posx, int fd1) {
     char px_str[20]="";
     
     sprintf( px_str, "%f", posx);
@@ -45,7 +44,7 @@ void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
 }
 
 //function for opening comunication channel to comand
-double comunication_channel_comandx (double velx, char* myfifo_comandx, int fd2) {
+double comunication_channel_comandx (int fd2) {
     fd_set readfds;
     int retval;
     const int TIMEOUT = 1; // seconds
@@ -77,7 +76,7 @@ double comunication_channel_comandx (double velx, char* myfifo_comandx, int fd2)
         		perror("Something wrong in reading");
         		}	
     		else {
-    			perror("READ OK");
+    			//perror("READ OK");
         		velx = strtod(velx_str, &eptr);
         	}
         }
@@ -92,11 +91,8 @@ int main(int argc, char const *argv[]) {
      const char * filename = argv[1];
      char * logtxt = "";
     //open comunication channel to world process
-     char * myfifo_world = "/tmp/myfifo_worldx";
-     if (mkfifo(myfifo_world, 0666) != 0)
-      perror("Cannot create fifo_world. Already existing?");
-     //open comunication channel to comand process
-     char * myfifo_comandx = "/tmp/myfifo_comandx";
+     const char * myfifo_world = argv[2];
+     const char * myfifo_comandx = argv[3];
      char input[20]="";
      char l[100];
      double delta_time1=pow(30, -1);
@@ -119,25 +115,21 @@ int main(int argc, char const *argv[]) {
         exit(1);
     }
      while(1) {
-        velx=comunication_channel_comandx(velx, myfifo_comandx, fd2);
+        velx=comunication_channel_comandx(fd2);
         old_pos = posx;
         if (signal(SIGUSR1, stop_handlerx)==SIG_ERR)
             perror("\ncan't catch the SIGUSR1");
         if (((int) posx==40 && velx>0) || ((int) posx==0 && velx<0))
-            velx=comunication_channel_comandx(velx, myfifo_comandx, fd2);
+            velx=comunication_channel_comandx(fd2);
         posx+=estimate_position(velx, delta_time2);
         if (old_pos != posx) {
         	logtxt="Current horizonthal position just changed!";
         	write_log(logtxt,filename);
         }
-        comunication_channel_world(myfifo_world, posx, fd1);
+        comunication_channel_world(posx, fd1);
       
     }
-    close(fd1);
-    //we have to check unlink later
-    //unlink(myfifo_world);
     close(fd2);
-    //unlink(myfifo_comandx);
+    close(fd1);
     return 0;
 }
-
