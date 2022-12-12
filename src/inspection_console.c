@@ -165,14 +165,18 @@ int main(int argc, char const *argv[])
 
                 // STOP button pressed
                 if(check_button_pressed(stp_button, &event)) {
-                    /*mvprintw(LINES - 1, 1, "STP button pressed");
+                    mvprintw(LINES - 1, 1, "STP button pressed");
                     refresh();
                     sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
-                    }*/
-                    /*if (kill()==-1)
-                        perror("Something wrong in stop");*/
+                    }
+                   //here we send 2 signal to mz and mx
+                    if (kill( pmx, SIGUSR1)==-1)
+                        perror("Something wrong in stop");
+		    sleep(0.5);
+		    if (kill(pmz, SIGUSR1)==-1)
+			perror("Something wrong in stop");
                 }
 
                 // RESET button pressed
