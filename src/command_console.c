@@ -9,19 +9,22 @@
 #include <stdbool.h>
 #include <time.h>
 
-void comunication_channel_insp ( char* myfifo_insp, double pos, int fd) {
+
+void comunication_channel_insp ( const char* myfifo_insp, double pos, int fd) {
     char p_str[20]="";
     //convert double to string
     sprintf( p_str, "%f", pos);
     //mkfifo(myfifo_world, 0666);
-    if (!write(fd, p_str, strlen(p_str)+1))
+    if (write(fd, p_str, strlen(p_str)+1)==-1)
         perror("Somenthing wrong in writing");
 }
 
-void write_log(char * log_text, char * fn)
+void write_log( char * log_text, const char * fn)
 {
 	FILE *fp_log;
-	fp_log = fopen(fn,"a");  
+	fp_log = fopen(fn,"a");
+    if (fp_log==NULL)
+        perror("Something went wrong in open log_file");  
 	fputs(log_text, fp_log);
 	fputs("\n", fp_log);
 	//perror("Error in something!"); 
@@ -30,13 +33,18 @@ void write_log(char * log_text, char * fn)
 
 int main(int argc, char const *argv[])
 {
-    char * filename = argv[1];
+    if (argc==0) {
+        printf("One argument expected!");
+		return -1;
+	}
+    const char * filename = argv[1];
     char * logtxt = "";
-    int fdx,fdz;
-    char * myfifox = "/tmp/myfifo_comandx";
-    char * myfifoz = "/tmp/myfifo_comandz";
-    mkfifo(myfifox,0666);
-    mkfifo(myfifoz,0666);
+    int fdx,fdz, fdinsp;
+    int pid=getpid();
+    char cpid[100];
+    const char * myfifox = argv[2];
+    const char * myfifoz = argv[3];
+    //char * myfifoinsp="/tmp/myfifoinsp";
     double vx = 0.0;
     double vz = 0.0;
     char mess[80];
@@ -48,10 +56,27 @@ int main(int argc, char const *argv[])
     
     // Infinite loop
     fdx = open(myfifox,O_WRONLY);
+    if (fdx==0) {
+         perror("Cannot open pipe");
+        unlink(myfifox);
+        exit(1);
+    }
     fdz = open(myfifoz,O_WRONLY);
+    if (fdz==0) {
+         perror("Cannot open pipe");
+        unlink(myfifoz);
+        exit(1);
+    }
+
+    /*fdinsp=open(myfifoinsp,O_WRONLY);
+    sprintf(cpid, "%d", pid);
+    if (read(fdinsp,cpid,100)==-1)
+        perror("Something went wrong");
+    close(fdinsp);*/
     while(TRUE)
 	{	
         // Get mouse/resize commands in non-blocking mode...
+        sleep(0.5);
         int cmd = getch();
 
         // If user resizes screen, re-draw UI
@@ -80,7 +105,7 @@ int main(int argc, char const *argv[])
                     write_log(logtxt,filename);
                     refresh();
                     //close(fdx);
-                    sleep(0.0033);
+                    sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
@@ -97,7 +122,7 @@ int main(int argc, char const *argv[])
                     write_log(logtxt,filename);
                     refresh();
                     //close(fdx);
-                    sleep(0.0033);
+                    sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
@@ -114,7 +139,7 @@ int main(int argc, char const *argv[])
                     write_log(logtxt,filename);
                     refresh();
                     //close(fdx);
-                    sleep(0.0033);
+                    sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
@@ -131,7 +156,7 @@ int main(int argc, char const *argv[])
                     write_log(logtxt,filename);
                     refresh();
                     //close(fdz);
-                    sleep(0.0033);
+                    sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
@@ -148,7 +173,7 @@ int main(int argc, char const *argv[])
                     write_log(logtxt,filename);
                     refresh();
                     //close(fdz);
-                    sleep(0.0033);
+                    sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
@@ -165,7 +190,7 @@ int main(int argc, char const *argv[])
                     write_log(logtxt,filename);
                     refresh();
                     //close(fdz);
-                    sleep(0.0033);
+                    sleep(1);
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
@@ -174,9 +199,9 @@ int main(int argc, char const *argv[])
         }
         refresh();
 	}
-     close(fdx);
-     close(fdz);
     // Terminate
+    close(fdz);
+    close(fdx);
     endwin();
     return 0;
 }
