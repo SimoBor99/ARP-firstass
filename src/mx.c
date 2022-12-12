@@ -7,8 +7,13 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <math.h>
+#include <signal.h>
 
-void write_log(char * log_text, char * fn)
+double velx=0.0;
+double posx=0.0;
+double old_pos = 0.0;
+
+void write_log(char * log_text, const char * fn)
 {
 	FILE *fp_log;
 	fp_log = fopen(fn,"a");  
@@ -16,6 +21,12 @@ void write_log(char * log_text, char * fn)
 	fputs("\n", fp_log);
 	//perror("Error in something!"); 
 	fclose(fp_log);
+}
+//signal handler for stopping; mx crashes when we are inside the stop_handlerx
+void stop_handlerx (int signum) {
+    signal(SIGUSR1, stop_handlerx);
+    write_log("Signal called", "p.txt");
+    velx=0.0;
 }
 
 //function for calculating the estimate position; delta_time is 30Hz
@@ -29,7 +40,7 @@ void comunication_channel_world ( char* myfifo_world, double posx, int fd1) {
     
     sprintf( px_str, "%f", posx);
     //mkfifo(myfifo_world, 0666);
-    if (!write(fd1, px_str, strlen(px_str)+1))
+    if (write(fd1, px_str, strlen(px_str)+1)==-1)
         perror("Somenthing wrong in writing");
 }
 
@@ -74,35 +85,47 @@ double comunication_channel_comandx (double velx, char* myfifo_comandx, int fd2)
 }
 
 int main(int argc, char const *argv[]) {
-     char * filename = argv[1];
+    if (argc==0) {
+        printf("One argument expected!");
+		return -1;
+	}
+     const char * filename = argv[1];
      char * logtxt = "";
-     double old_pos = 0.0;
     //open comunication channel to world process
      char * myfifo_world = "/tmp/myfifo_worldx";
+     if (mkfifo(myfifo_world, 0666) != 0)
+      perror("Cannot create fifo_world. Already existing?");
      //open comunication channel to comand process
      char * myfifo_comandx = "/tmp/myfifo_comandx";
      char input[20]="";
      char l[100];
-     double posx=0.0;
-     double velx=0.0;
-     double delta_time2=pow(30, -1);
-     double delta_time1 = 1;
-     int fd1, fd2;
-     double o = 0;
+     double delta_time1=pow(30, -1);
+     double delta_time2 = 1;
+     int fd1, fd2, fd3;
+     char s[100];
+     int y=getpid();
+     sprintf(s, "%d", y);
+     write_log(s, "c.txt");
      fd1=open(myfifo_world,O_WRONLY);
-        fd2=open(myfifo_comandx,O_RDONLY);
+     if (fd1==0) {
+        perror("Cannot open fifo_world");
+        unlink(myfifo_world);
+        exit(1);
+    }
+     fd2=open(myfifo_comandx,O_RDONLY);
+     if (fd2==0) {
+        perror("Cannot open fifo_comandx");
+        unlink(myfifo_comandx);
+        exit(1);
+    }
      while(1) {
-     	//sleep(0.0033);
-        if (fd2 == 0){
-        	perror("Error in comunication!!");
-        }
         velx=comunication_channel_comandx(velx, myfifo_comandx, fd2);
         old_pos = posx;
-        while (((int) posx==40 && velx>0) || ((int) posx==0 && velx<0))
+        if (signal(SIGUSR1, stop_handlerx)==SIG_ERR)
+            perror("\ncan't catch the SIGUSR1");
+        if (((int) posx==40 && velx>0) || ((int) posx==0 && velx<0))
             velx=comunication_channel_comandx(velx, myfifo_comandx, fd2);
-        o=estimate_position(velx, delta_time2);
-        posx=posx+o;
-        sprintf(l, "%f", o);
+        posx+=estimate_position(velx, delta_time2);
         if (old_pos != posx) {
         	logtxt="Current horizonthal position just changed!";
         	write_log(logtxt,filename);
@@ -111,6 +134,10 @@ int main(int argc, char const *argv[]) {
       
     }
     close(fd1);
-        close(fd2);
+    //we have to check unlink later
+    //unlink(myfifo_world);
+    close(fd2);
+    //unlink(myfifo_comandx);
     return 0;
 }
+
