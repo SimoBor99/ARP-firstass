@@ -11,7 +11,7 @@ const double rnderr = 0.05;
 char *eptr;
 double resultx,resultz,old_resx,old_resz;
 
-void comunication_channel_insp ( char* myfifo_insp, double pos, int fd) {
+void comunication_channel_insp ( const char* myfifo_insp, double pos, int fd) {
     char p_str[20]="";
     fd_set writefds;
     int retval;
@@ -26,7 +26,6 @@ void comunication_channel_insp ( char* myfifo_insp, double pos, int fd) {
     tv.tv_usec = 0;
     //convert double to string
     sprintf( p_str, "%f", pos);
-    //mkfifo(myfifo_world, 0666);
     retval = select(fd + 1, NULL, &writefds, NULL, &tv);
     if (retval == -1)
         {
@@ -41,15 +40,17 @@ void comunication_channel_insp ( char* myfifo_insp, double pos, int fd) {
 	
     else // there is incoming input
         {
-        	if (!write(fd, p_str, strlen(p_str)+1))
+        	if (write(fd, p_str, strlen(p_str)+1)==-1)
         perror("Somenthing wrong in writing");
         }
 }
 
-void write_log(char * log_text, char * fn)
+void write_log(char * log_text, const char * fn)
 {
 	FILE *fp_log;
-	fp_log = fopen(fn,"a");  
+	fp_log = fopen(fn,"a"); 
+	if (fp_log==NULL)
+		perror("Something went wrong"); 
 	fputs(log_text, fp_log);
 	fputs("\n", fp_log);
 	//perror("Error in something!"); 
@@ -68,33 +69,49 @@ int main(int argc, char const *argv[])
 	resultz = 0;
 	old_resx = 0;
 	old_resz = 0;
-	char * filename = argv[1];
+	const char * filename = argv[1];
 	char * logtxt = "";
 	fd_set readfds;
 	int retval, nRead;
 	int fdx,fdz,fdix,fdiz;
-	char * myfifox = "/tmp/myfifo_worldx";
-	char * myfifoz = "/tmp/myfifo_worldz";
-	mkfifo(myfifox,0666);
-	mkfifo(myfifoz,0666);
-	char * myfifoix = "/tmp/myfifo_inspx";
-	char * myfifoiz = "/tmp/myfifo_inspz";
-	mkfifo(myfifoix,0666);
-	mkfifo(myfifoiz,0666);
+	const char * myfifox = argv[5];
+	const char * myfifoz = argv[4];
+	const char * myfifoix = argv[2];
+	const char * myfifoiz = argv[3];
 	int vx = 0;
 	int vz = 0;
-	char mess[80];
-	char messageP1[80], messageP2[80];
+	char mess[20];
+	char messageP1[20], messageP2[20];
 	const int TIMEOUT = 1; // seconds
 
 	struct timeval tv;
 	fdx = open(myfifox, O_RDONLY);
-		fdz = open(myfifoz, O_RDONLY);
-		fdix = open(myfifoix, O_WRONLY);
-		fdiz = open(myfifoiz, O_WRONLY);
+	if (fdx==0) {
+		perror("Cannot open fifo");
+		unlink(myfifox);
+		exit(1);
+	}
+	fdz = open(myfifoz, O_RDONLY);
+	if (fdz==0) {
+		perror("Cannot open fifo");
+		unlink(myfifoz);
+		exit(1);
+	}
+	fdix = open(myfifoix, O_WRONLY);
+	if (fdix==0) {
+		perror("Cannot open fifo");
+		unlink(myfifoix);
+		exit(1);
+	}
+	fdiz = open(myfifoiz, O_WRONLY);
+	if (fdiz==0) {
+		perror("Cannot open fifo");
+		unlink(myfifoiz);
+		exit(1);
+	}
 	while(1)
 	{
-		//sleep(0.0033);
+		sleep(0.5);
 		FD_ZERO(&readfds);
         	FD_SET(fdx, &readfds);
         	FD_SET(fdz, &readfds);
@@ -120,7 +137,7 @@ int main(int argc, char const *argv[])
         		// check where is it coming from
         		if (FD_ISSET(fdx, &readfds))
         		{
-        		        nRead = read(fdx, messageP1, 80);
+        		        nRead = read(fdx, messageP1, 20);
         		        if (nRead < 0)
         		        {
         		        	perror("read provider 1");
@@ -144,7 +161,7 @@ int main(int argc, char const *argv[])
 	
             		if(FD_ISSET(fdz, &readfds))
             		{
-            			nRead = read(fdz, messageP2, 80);
+            			nRead = read(fdz, messageP2, 20);
             			if (nRead < 0)
             	    		{
             	        		perror("read provider 2");
@@ -171,9 +188,10 @@ int main(int argc, char const *argv[])
         	
         	
         }
+		close(fdiz);
+		close(fdix);
+		close(fdz);
         close(fdx);
-        	close(fdz);
-        	close(fdix);
-        	close(fdiz);
         return 0;	
 }
+
