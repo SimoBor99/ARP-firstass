@@ -6,50 +6,134 @@
 #include <sys/stat.h> 
 #include <sys/wait.h>
 #include <string.h>
+#include <signal.h>
 #include "./../include/inspection_utilities.h"
 
 char *eptr;
 double resultx,resultz,old_resx,old_resz;
+const int dim=80;
 
-void write_log(char * log_text, char * fn)
+void write_log(char * log_text, const char * fn)
 {
 	FILE *fp_log;
-	fp_log = fopen(fn,"a");  
+	fp_log = fopen(fn,"a"); 
+	if (fp_log==NULL)
+		perror("Something wrong in open log file"); 
 	fputs(log_text, fp_log);
 	fputs("\n", fp_log);
-	//perror("Error in something!"); 
 	fclose(fp_log);
 }
 
-int main(int argc, char const *argv[])
-{   char *myfifo_insp="/tmp/myfifo_insp";
-    char l[100];
-    int fd;
-    char format[100]="%s-%s";
-    char * t;
-    char * o;
-    fd=open(myfifo_insp, O_RDONLY);
-    if (fd==0)
-     perror("Something wrong");
-    if (read(fd, l, 100)==-1)
-        perror("Error in read");
-    t = strtok(l, "-");
-    o = strtok(NULL, "-");
-    write_log(t, "inspection_log.txt");
-    write_log(o, "inspection_log.txt");
+int main(int argc, char const *argv[]) {   
+	if (argc==0) {
+        printf("One argument expected!");
+		return -1;
+	}
+	const char *myfifo_insp=argv[4];
+    char mxmz[dim];
+    int fd1, fd2;
+    char mx[dim];
+    char mz[dim];
+    char pidc[dim];
+    fd_set readfds;
+    int retval, nRead;
+    double mm;
+    double kk;
+	fd1=open(myfifo_insp, O_RDONLY);
+	if (fd1==0) {
+		perror("Cannot open fifo");
+		unlink(myfifo_insp);
+		exit(1);
+	}
+	if (read(fd1, mxmz, dim)==-1)
+		perror("Something went wrong in reading");
+	sscanf(mxmz, "%[^,],%s", mx, mz);
+    write_log(mx, "inspection_log.txt");
+    write_log(mz, "inspection_log.txt");
+	int pmx=atoi(mx);
+	int pmz=atoi(mz);
+	close(fd1);
+	//this select it will be used for reading the pid of command;
+    /*fd1=open(myfifo_insp, O_RDONLY);
+    fd2=open(myfifoinsp, O_RDONLY);
+    FD_ZERO(&readfds);
+        	FD_SET(fd1, &readfds);
+        	FD_SET(fd2, &readfds);
+        	
+        	tv.tv_sec = TIMEOUT;
+        	tv.tv_usec = 0;
+        	retval = select(
+            (fd1 > fd2) ? fd1 + 1 : fd2 + 1,
+            &readfds, NULL, NULL, &tv);
+		if (retval == -1)
+        	{
+        		perror("select()");
+        		exit(EXIT_FAILURE);
+        	}
+
+        	else if (!retval) // not any input before timeout
+        	{
+        		continue;
+		}
+		
+		else // there is incoming input
+        	{
+        		// check where is it coming from
+        		if (FD_ISSET(fd1, &readfds))
+        		{
+        		        nRead = read(fd1, mxmz, 100);
+        		        if (nRead < 0)
+        		        {
+        		        	perror("read provider 1");
+        	        		exit(EXIT_FAILURE);
+        	        	}
+        	        	else
+        	        	{
+        	        		 mm= strtod(mxmz, &eptr);
+        				}
+        	        		char tmpx[100]="";
+    					sprintf(tmpx, "%f", mm);
+        	        	sscanf(mxmz, "%[^,],%s", mx, mz);
+                        write_log(mx, "inspection_log.txt");
+                        write_log(mz, "inspection_log.txt");
+                        int pmx=atoi(mx);
+                        int pmz=atoi(mz);
+        	        	}
+        	    	}
+	
+            		if(FD_ISSET(fd2, &readfds))
+            		{
+            			nRead = read(fd2, pidc, 100);
+            			if (nRead < 0)
+            	    		{
+            	        		perror("read provider 2");
+            	        		exit(EXIT_FAILURE);
+            	    		}
+            	    		else
+            	    		{
+            	        		kk = strtod(pidc, &eptr);
+            	        		
+        				}
+        	        		char tmpz[100]="";
+    					sprintf(tmpz, "%f", kk);
+            	    		}
+            		}
+        	}
+    close(fd1);
+    close(fd2);*/
     resultx = 0;
     resultz = 0;
     old_resx = 0;
     old_resz = 0;
-    char * filename = argv[1];
+    const char * filename = argv[1];
     char * logtxt = "";
     int fdx,fdz;
-    fd_set readfds;
-    int retval, nRead;
-    char * myfifox = "/tmp/myfifo_inspx";
-    char * myfifoz = "/tmp/myfifo_inspz";
-    char mess[80];
-    char messageP1[80], messageP2[80];
+    //fd_set readfds;
+    //int retval, nRead;
+    const char * myfifox = argv[2];
+    const char * myfifoz = argv[3];
+    char mess[dim];
+    char messageP1[dim], messageP2[dim];
     const int TIMEOUT = 1; // seconds
     // Utility variable to avoid trigger resize event on launch
     int first_resize = TRUE;
@@ -63,7 +147,15 @@ int main(int argc, char const *argv[])
 
     // Infinite loop
     fdx = open(myfifox, O_RDONLY);
+	if ( fdx==0) {
+		unlink(myfifox);
+		exit(1);
+	}
     fdz = open(myfifoz, O_RDONLY);
+	if ( fdz==0) {
+		unlink(myfifoz);
+		exit(1);
+	}
     while(TRUE)
     {
 	
@@ -109,7 +201,7 @@ int main(int argc, char const *argv[])
         			else {
         				write_log(messageP1,filename);
         			}
-        	       		char tmpx[20]="";
+        	       		char tmpx[dim];
     				sprintf(tmpx, "%f", resultx);
         	       		//printf("Provider X: %s\n", tmpx);
         	       		//fflush(stdout);
@@ -136,7 +228,7 @@ int main(int argc, char const *argv[])
         			else {
         				write_log(messageP2,filename);
         			}
-        	        	char tmpz[20]="";
+        	        	char tmpz[dim];
     				sprintf(tmpz, "%f", resultz);
         	        	//printf("Provider Z: %s\n", tmpz);
             	        	//fflush(stdout);
@@ -171,12 +263,12 @@ int main(int argc, char const *argv[])
                     for(int j = 0; j < COLS; j++) {
                         mvaddch(LINES - 1, j, ' ');
                     }
-                   //here we send 2 signal to mz and mx
+					//here we send 2 signal to mz and mx
                     if (kill( pmx, SIGUSR1)==-1)
                         perror("Something wrong in stop");
-		    sleep(0.5);
-		    if (kill(pmz, SIGUSR1)==-1)
-			perror("Something wrong in stop");
+					sleep(0.5);
+					if (kill(pmz, SIGUSR1)==-1)
+						perror("Something wrong in stop");
                 }
 
                 // RESET button pressed
@@ -188,7 +280,7 @@ int main(int argc, char const *argv[])
                         mvaddch(LINES - 1, j, ' ');
                     }*/
                     /*if (kill()==-1)
-                        perror("Something wrong in stop");*/
+                        perror("Something wrong in reset");*/
                 }
             }
         }
@@ -200,7 +292,8 @@ int main(int argc, char const *argv[])
     }
     // Terminate
     endwin();
-    close(fdx);
-        close(fdz);
+	close(fdz);
+	close(fdx);
     return 0;
 }
+
