@@ -42,13 +42,9 @@ This process write in its log file whenever a button is pressed.
 
 * **Inpection Console Process**
 This process shows a graphic interface with the hoist end-effector, its coordinates and the 2 emergency buttons mentioned above. The process is an infinite loop, in which the process check if one of the two emergency buttons has been pressed:
-
 If the stop button is pressed, a signal is sent to the command process and to the 2 motors processes, which set the velocities of both the x and z axis to 0 in the 3 processes.
-
 If the reset button is pressed, a signal is sent to the command process and to the 2 motor processes. The signal sent to the command process blocks the input given by the user, so the command process enter a while loop which in which it does nothing, until the reset procedure has concluded. The signal sent to the two motors processes makes them enter into a while loop, in which the 2 coordinates of the end-effector are continously checked and if the position is different from 0, a negative velocity is set and mantained, until it reaches 0.
-
 After both motors have reached the 0 position, the 2 velocities are set to 0 and the command console inputs are rehabilitated.
-
 In the loop, this process also uses the select() instruction the check if something is readable from the world process (there are 2 pipes, because the world process send to the inspection process both the x position and the z position) and if it is the case, the value(s) position read are changed.
 To conclude, the process updates the graphic interface the end of every loop.
 
