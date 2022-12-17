@@ -56,8 +56,25 @@ There are also signal handler implemented here, in order to manage the signals s
 * **world process**
 This process takes the position values for the x-axe and the z-axe from the motors processes (a select() is used to do so). Then, this process add to these two positions a little random error, in order to simulate better a real-world problem, where the theorethical value and the real value are usually not exactly the same. After that, the two real position values are sent through a pipe to the **inspection** process, which will take these values and display them into its graphical interface.
 
-User Guide (TO IMPROVE AFTER WRITING .sh)
+User Guide (TO UPDATE AFTER WRITING .sh)
 ----------------------------------------------
 Among the folders of this project, there is one with a shell script, that you can execute in your terminal in order to run the program.
 After starting the program, two graphical interfaces of console will spawn.
+
 In the first one there are six buttons:
+* **Vx-** will decrease of one unity the horizonthal velocity of the hoist end-effector;
+* **Vx stop** will set to zero the horizonthal velocity of the hoist end-effector;
+* **Vx+** will increase of a unity the horizonthal velocity of the hoist end-effector;
+* **Vz-** will decrease of a unity the vertical velocity of the hoist end-effector;
+* **Vz stop** will set to zero the vertical velocity of the hoist end-effector;
+* **Vz+** will increase of a unity the horizonthal velocity of the hoist end-effector.
+If the end-effector arrives at a border (0-39 horizonthally and 0-9 vertically), it will stop there, but the velocity will not reset! So be careful to stop the horizonthal velocity before starting to go into the other direction.
+
+In the second graphical interfece, we have a display of the hoist, where we can see the position of the hoist's end-effector. In this interface there are also two emergency buttons  that, when pressed, will immediately perform an emergency action:
+* **S** will immediately stop the movement of the hoist's end-effector (both horizonthal and vertical);
+* **R** will reset te position of the hoist's end-effector to the starting one (at (0;0)); the reset is not immediate, instead the end-effector will slowly start to go towards the origin.
+If the **S** button is pressed while a reset is ongoing, the reset action will be cancelled and the end-effector will immediately stop.
+
+To terminate the execution the are two different ways:
+* The first one is to stop both motors and wait until a minute passes, without pressing any button; in this way, the master process will notice the minute of inactivity and will kill all processes and terminate its own execution;
+* The second one is to press ctrl+C on the terminal window where the program has been launched: the master process kill all processes and terminate its own execution.
