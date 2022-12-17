@@ -3,7 +3,7 @@
 Installing and running
 ----------------------------------------------
 Before running the program with **konsole file**, it is fundamental to install one library:
-*lncurses.
+**lncurses**.
 
 For doing that, you can run on the terminal the following command:
 
@@ -25,10 +25,10 @@ In the command console, the user can input some command by pressing one of the 6
 In the inspection console, the user can see where the hoist end-effector is placed in space and its coordinates. The user has also the possibility to press 2 buttons: the reset button, which takes the hoist back to its original position, and the stop button, which immediately stops the hoist movement.
 Last but not least, if the state of the program doesn't change (hoist doesn't move, user doesn't press any button) for 1 minute, the program will automatically terinate its own execution.
 
-Deployment of the program
+Development of the program
 ----------------------------------------------
 
-The program is deployed with 6 different processes:
+The program is developed with 6 different processes:
 
 * **Master Process**
 This is the process which starts everything: after starting its execution, this process spawns 5 other processes, passing them the arguments they need for communicating through each other and for writing on their log files.
@@ -50,4 +50,14 @@ To conclude, the process updates the graphic interface the end of every loop.
 
 * **Motor Processes**
 These 2 processes are identical, so they are included in the same section.
-These processes are not opened in konsole, so they are invisible to the user. They 
+These processes are not opened in konsole, so they are invisible to the user. They have to read the current velocities of hoist, which are setted by the user thanks to the grapichal interface of **Inspection** process. Then they have to calculate the ideal position of end effector, and send it to the world process; actually the position are two: one for the x axis and another for the z axis.
+There are also signal handler implemented here, in order to manage the signals sent by the **inspection** process.
+
+* **world process**
+This process takes the position values for the x-axe and the z-axe from the motors processes (a select() is used to do so). Then, this process add to these two positions a little random error, in order to simulate better a real-world problem, where the theorethical value and the real value are usually not exactly the same. After that, the two real position values are sent through a pipe to the **inspection** process, which will take these values and display them into its graphical interface.
+
+User Guide (TO IMPROVE AFTER WRITING .sh)
+----------------------------------------------
+Among the folders of this project, there is one with a shell script, that you can execute in your terminal in order to run the program.
+After starting the program, two graphical interfaces of console will spawn.
+In the first one there are six buttons:
