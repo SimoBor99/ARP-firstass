@@ -2,7 +2,7 @@
 
 Installing and running
 ----------------------------------------------
-Before running the program with **konsole file**, it is fundamental to install one library:
+Before running the program with **shell file**, it is fundamental to install one library:
 **lncurses**.
 
 For doing that, you can run on the terminal the following command:
@@ -13,9 +13,15 @@ After doing that, it is the time to create the binary of all 6 processes,and run
 
 ``` chmod u+x first_ass.sh```
 
-Finally it is the time to launch the program. You just run on terminal:
+Then launch it to create all binary files, by the command:
 
 ```./first_ass.sh```
+
+Once you have done this, you have to go inside the bin folder, and run the master program by:
+
+```./master```
+
+After that, the program is successively launched!
 
 Description of the program
 ----------------------------------------------
