@@ -9,12 +9,13 @@ For doing that, you can run on the terminal the following command:
 
 ``` sudo apt-get install libncurses-dev```
 
-After doing that, it is the time to crete the binary of all 6 processes, because the script konsole can be executed if and only if there are the binary files (which are the executables).
-Then, the program is ready to be run. All you need to do is going with the terminal into the folder where you put the bins and type the command:
+After doing that, it is the time to create the binary of all 6 processes,and run the programm. You must to make **first_ass.sh** executable, by using on the terminal:
 
-``` ./master```
+``` chmod u+x first_ass.sh```
 
-And the program will start!
+Finally it is the time to launch the program. You just run on terminal:
+
+```./first_ass.sh```
 
 Description of the program
 ----------------------------------------------
