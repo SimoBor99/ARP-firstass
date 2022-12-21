@@ -15,15 +15,11 @@ After doing that, it is the time to create the binary of all 6 processes,and run
 
 You can find **first_ass.sh** into ```add_materials``` folder. 
 
-Then launch it to create all binary files, by the command:
+Then launch it to create all binary files and execute the program, by the command:
 
 ```./first_ass.sh```
 
-Once you have done this, you have to go inside the bin folder, and run the master program by:
-
-```./master```
-
-After that, the program is successively launched!
+Once you have done this, the program is successively launched!
 
 Description of the program
 ----------------------------------------------
