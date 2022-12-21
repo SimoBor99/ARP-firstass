@@ -5,5 +5,6 @@ gcc src/inspection_console.c -lncurses -lm -o bin/inspection
 gcc src/mx.c -o bin/mx
 gcc src/mz.c -o bin/mz
 gcc src/world.c -o bin/world
+./bin/master
 
 
