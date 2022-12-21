@@ -13,9 +13,9 @@ After doing that, it is the time to create the binary of all 6 processes,and run
 
 ``` chmod u+x first_ass.sh```
 
-You can find **first_ass.sh** into ```add_materials``` folder. 
+You can find **first_ass.sh** into ```add_materials``` folder, but this file must be in the same folder of the project. 
 
-Then launch it to create all binary files and execute the program, by the command:
+Then launch it to create all binary and execute the program, by the command:
 
 ```./first_ass.sh```
 
