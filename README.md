@@ -9,7 +9,7 @@ For doing that, you can run on the terminal the following command:
 
 ``` sudo apt-get install libncurses-dev```
 
-After doing that, it is the time to create the binary of all 6 processes,and run the programm. You must to make **first_ass.sh** executable, by using on the terminal:
+After doing that, it is the time to create the binary of all 6 processes and run the programm. You must to make **first_ass.sh** executable, by using on the terminal:
 
 ``` chmod u+x first_ass.sh```
 
