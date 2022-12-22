@@ -24,7 +24,7 @@ Once you have done this, the program is successfully launched!
 Description of the program
 ----------------------------------------------
 This program simulates a simple hoist with 2 degrees of freedom.
-The hoist can move horizonthally and vertically, in a range between 0-40 (horizonthally) and 0-10 (vertically).
+The hoist can move horizonthally and vertically, in a range between 0-39 (horizonthally) and 0-9 (vertically).
 After starting, the program spawns two console windows: the command console and the inspection console.
 In the command console, the user can input some command by pressing one of the 6 buttons present on the interface. These commands can increase, decrease or stop the velocity of the along one of the two axis where the hoist is able to move.
 In the inspection console, the user can see where the hoist end-effector is placed in space and its coordinates. The user has also the possibility to press 2 buttons: the reset button, which takes the hoist back to its original position, and the stop button, which immediately stops the hoist movement.
