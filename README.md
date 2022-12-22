@@ -19,7 +19,7 @@ Then launch it to create all binary and execute the program, by the command:
 
 ```./first_ass.sh```
 
-Once you have done this, the program is successively launched!
+Once you have done this, the program is successfully launched!
 
 Description of the program
 ----------------------------------------------
