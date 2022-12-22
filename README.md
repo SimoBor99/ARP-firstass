@@ -26,8 +26,8 @@ Description of the program
 This program simulates a simple hoist with 2 degrees of freedom.
 The hoist can move horizonthally and vertically, in a range between 0-39 (horizonthally) and 0-9 (vertically).
 After starting, the program spawns two console windows: the command console and the inspection console.
-In the command console, the user can input some command by pressing one of the 6 buttons present on the interface. These commands can increase, decrease or stop the velocity of the along one of the two axis where the hoist is able to move.
-In the inspection console, the user can see where the hoist end-effector is placed in space and its coordinates. The user has also the possibility to press 2 buttons: the reset button, which takes the hoist back to its original position, and the stop button, which immediately stops the hoist movement.
+In the command console, the user can input some command by pressing one of the six buttons present on the interface. These commands can increase, decrease or stop the velocity of the motor along one of the two axis where the hoist is able to move.
+In the inspection console, the user can see where the hoist end-effector is placed in space and its coordinates. The user has also the possibility to press two buttons: the reset button, which takes the hoist back to its original position, and the stop button, which immediately stops the hoist movement.
 Last but not least, if the state of the program doesn't change (hoist doesn't move, user doesn't press any button) for 1 minute, the program will automatically terminate its own execution.
 
 Development of the program
